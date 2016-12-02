@@ -1,6 +1,7 @@
 package com.example.etiennepinault.viewmodelpresenting.commons;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,9 +9,7 @@ import android.util.Log;
 
 import rx.subscriptions.CompositeSubscription;
 
-import java.io.Serializable;
-
-public class Activity<P extends Presenter<VM>, VM extends ViewModel>
+public class BaseActivity<P extends Presenter, VM extends ViewModel>
         extends AppCompatActivity {
 
     protected final @NonNull VM viewModel = new ViewModel.Factory<VM>().build(this);
@@ -19,22 +18,20 @@ public class Activity<P extends Presenter<VM>, VM extends ViewModel>
     private CompositeSubscription lifeTimeSubscriptions = new CompositeSubscription();
     private CompositeSubscription foregroundSubscriptions = new CompositeSubscription();
 
-    private static final String TAG = "Activity";
-
-    public Activity() {
-    }
+    private static final String TAG = "BaseActivity";
 
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Serializable savedState = null;
+        Parcelable parcelable = null;
         if(savedInstanceState != null && savedInstanceState.containsKey(getStateKey())) {
             Object state = savedInstanceState.get(getStateKey());
-            if(state instanceof Serializable) {
-                savedState = (Serializable) state;
+            if(state instanceof Parcelable) {
+                parcelable = (Parcelable) state;
             }
         }
-        viewModel.restoreState(savedState);
+        //noinspection unchecked
+        presenter.restoreState(parcelable);
 
         Log.e(TAG, "onCreate: " + savedInstanceState);
     }
@@ -44,7 +41,7 @@ public class Activity<P extends Presenter<VM>, VM extends ViewModel>
         subscribeForLifeTime(lifeTimeSubscriptions);
     }
 
-    protected void subscribeForLifeTime(CompositeSubscription lifeTimeSubscriptions) {
+    protected void subscribeForLifeTime(CompositeSubscription subscriptions) {
 
     }
 
@@ -53,7 +50,7 @@ public class Activity<P extends Presenter<VM>, VM extends ViewModel>
         subscribeForForeground(foregroundSubscriptions);
     }
 
-    protected void subscribeForForeground(CompositeSubscription foregroundSubscriptions) {
+    protected void subscribeForForeground(CompositeSubscription subscriptions) {
 
     }
 
@@ -64,12 +61,20 @@ public class Activity<P extends Presenter<VM>, VM extends ViewModel>
 
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(getStateKey(), viewModel.saveState());
+        outState.putParcelable(getStateKey(), presenter.saveState());
     }
 
-    private String getStateKey() {
+    @Override protected void onStop() {
+        super.onStop();
+        lifeTimeSubscriptions.clear();
+    }
+
+    @NonNull private String getStateKey() {
         return "savedState_" + getClass().getName();
     }
 
-
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
+    }
 }

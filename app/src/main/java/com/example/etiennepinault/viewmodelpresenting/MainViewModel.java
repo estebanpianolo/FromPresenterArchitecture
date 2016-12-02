@@ -1,16 +1,16 @@
 package com.example.etiennepinault.viewmodelpresenting;
 
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 import com.example.etiennepinault.viewmodelpresenting.commons.ViewModel;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
-
-import java.io.Serializable;
+import rx.subjects.PublishSubject;
 
 //@State
 public class MainViewModel
-        extends ViewModel<MainViewModel.State> {
+        extends ViewModel {
 
     /*
     @BehaviorSubject @State
@@ -23,9 +23,11 @@ public class MainViewModel
     boolean submitButtonEnabled = false;
 */
 
-
     private BehaviorSubject<String> email = BehaviorSubject.create("");
     private BehaviorSubject<String> pass = BehaviorSubject.create("");
+
+    private PublishSubject<String> defaultEmail = PublishSubject.create();
+    private PublishSubject<String> defaultPass = PublishSubject.create();
 
     private BehaviorSubject<Boolean> submitButtonEnabled = BehaviorSubject.create(false);
 
@@ -41,16 +43,32 @@ public class MainViewModel
         return email;
     }
 
-    public void setPass(String pass) {
-        this.pass.onNext(pass);
-    }
-
     public String getPass() {
         return pass.getValue();
     }
 
+    public void setPass(String pass) {
+        this.pass.onNext(pass);
+    }
+
     public Observable<String> passObs() {
         return pass;
+    }
+
+    public Observable<String> defaultEmailObs() {
+        return defaultEmail;
+    }
+
+    public void setDefaultEmail(String defaultEmail) {
+        this.defaultEmail.onNext(defaultEmail);
+    }
+
+    public Observable<String> defaultPassObs() {
+        return defaultPass;
+    }
+
+    public void setDefaultPass(String defaultPass) {
+        this.defaultPass.onNext(defaultPass);
     }
 
     void setSubmitButtonEnabled(boolean enabled) {
@@ -61,29 +79,11 @@ public class MainViewModel
         return submitButtonEnabled;
     }
 
-    @Override protected void restoreState(@Nullable MainViewModel.State state) {
-        if(state != null) {
-            setEmail(state.email);
-            setPass(state.pass);
-        }
+    @Override protected void restoreState(@Nullable Parcelable state) {
+
     }
 
-    @Override protected MainViewModel.State saveState() {
-        return new State().setEmail(email.getValue()).setPass(pass.getValue());
-    }
-
-    static class State implements Serializable {
-        String email;
-        String pass;
-
-        State setEmail(String email) {
-            this.email = email;
-            return this;
-        }
-
-        State setPass(String pass) {
-            this.pass = pass;
-            return this;
-        }
+    @Nullable @Override protected Parcelable saveState() {
+        return null;
     }
 }

@@ -1,23 +1,51 @@
 package com.example.etiennepinault.viewmodelpresenting.commons;
 
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class Presenter<VM extends ViewModel> {
+public abstract class Presenter<VM extends ViewModel, S extends Parcelable> {
 
     protected final @NonNull VM viewModel;
 
-    @SuppressWarnings("ConstantConditions") private Presenter() {this.viewModel = null;}
+    private CompositeSubscription subscriptions = new CompositeSubscription();
+
+    @SuppressWarnings({ "ConstantConditions", "unused" })
+    private Presenter() {this.viewModel = null;}
 
     public Presenter(@NonNull VM viewModel) {this.viewModel = viewModel;}
 
+    protected void addSubscription(Subscription subscription) {
+        subscriptions.add(subscription);
+    }
+
+    protected abstract void restoreState(@Nullable S state);
+    protected abstract @Nullable S saveState();
+
+
+    final protected void unsubscribe(Subscription subscription) {
+        if(subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+        }
+    }
+
+    final void onDestroy() {
+        destroy();
+        subscriptions.clear();
+    }
+
+    abstract protected void destroy();
+
     static class Factory<P extends Presenter> {
 
-        @SuppressWarnings("unchecked")
-        protected Class<P> getPresenterClass(Object view)
+        @SuppressWarnings("unchecked") Class<P> getPresenterClass(Object view)
                 throws ClassCastException {
 
             Type type = view.getClass().getGenericSuperclass();
@@ -39,7 +67,7 @@ public class Presenter<VM extends ViewModel> {
                 }
             }
             if(matchingConstructor == null) {
-                throw new RuntimeException("Did you forget to make your Fragment extending the BaseFragment class ?");
+                throw new RuntimeException("Did you forget to make your View extending the Base view class ?");
             }
             return matchingConstructor;
         }
@@ -49,11 +77,7 @@ public class Presenter<VM extends ViewModel> {
                 return (P) getConstructor(view).newInstance(viewModel);
             } catch (ClassCastException e) {
                 throw new RuntimeException(
-                        "Did you forget to add a Presenter as a genericType in your Activity ?",
-                        e);
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException(
-                        "Did you forget to make your Fragment implementing the BaseView interface ?",
+                        "Did you forget to add a Presenter as a genericType in your View ?",
                         e);
             } catch (Exception e) {
                 throw new RuntimeException(e);

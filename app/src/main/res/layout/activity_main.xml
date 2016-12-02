@@ -53,5 +53,16 @@
         android:layout_marginTop="91dp"
         android:id="@+id/submitButton"
         />
+    <Button
+        android:text="Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/email"
+        android:layout_alignLeft="@+id/submitButton"
+        android:layout_alignStart="@+id/submitButton"
+        android:layout_marginLeft="54dp"
+        android:layout_marginStart="54dp"
+        android:id="@+id/defaultButton"
+        />
 
 </RelativeLayout>

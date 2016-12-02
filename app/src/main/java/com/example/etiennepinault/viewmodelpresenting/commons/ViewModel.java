@@ -1,15 +1,9 @@
 package com.example.etiennepinault.viewmodelpresenting.commons;
 
-import android.support.annotation.Nullable;
-
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public abstract class ViewModel<S extends Serializable> {
-
-    protected abstract void restoreState(@Nullable S state);
-    protected abstract @Nullable S saveState();
+public abstract class ViewModel {
 
     static class Factory<VM> {
 
@@ -27,11 +21,7 @@ public abstract class ViewModel<S extends Serializable> {
                 return getClass(view).newInstance();
             } catch (ClassCastException e) {
                 throw new RuntimeException(
-                        "Did you forget to add a Presenter as a genericType in your Activity ?",
-                        e);
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException(
-                        "Did you forget to make your Fragment implementing the BaseView interface ?",
+                        "Did you forget to add a ViewModel as a genericType in your View ?",
                         e);
             } catch (Exception e) {
                 throw new RuntimeException(e);
