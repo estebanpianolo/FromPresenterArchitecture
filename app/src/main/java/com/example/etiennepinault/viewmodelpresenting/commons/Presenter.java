@@ -22,7 +22,7 @@ public abstract class Presenter<VM extends ViewModel, S extends Parcelable> {
 
     public Presenter(@NonNull VM viewModel) {this.viewModel = viewModel;}
 
-    protected void addSubscription(Subscription subscription) {
+    final protected void addSubscription(Subscription subscription) {
         subscriptions.add(subscription);
     }
 
