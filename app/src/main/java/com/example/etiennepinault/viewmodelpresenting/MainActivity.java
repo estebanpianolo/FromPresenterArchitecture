@@ -26,14 +26,20 @@ public class MainActivity
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
-
     }
 
-    @Override protected void subscribeForForeground(CompositeSubscription subscriptions) {
+    @Override public void subscribeForForeground(CompositeSubscription subscriptions) {
         super.subscribeForForeground(subscriptions);
-        subscriptions.add((viewModel.submitButtonEnabled().subscribe(submitView::setEnabled)));
-        subscriptions.add((viewModel.defaultEmailObs().subscribe(this::setEmailText)));
-        subscriptions.add((viewModel.defaultPassObs().subscribe(this::setPassText)));
+
+        subscriptions.add(
+                viewModel.submitButtonEnabled()
+                         .subscribe(submitView::setEnabled));
+        subscriptions.add(
+                viewModel.defaultEmailObs()
+                         .subscribe(this::setEmailText));
+        subscriptions.add(
+                viewModel.defaultPassObs()
+                         .subscribe(this::setPassText));
     }
 
     private void setEmailText(String text) {
@@ -45,6 +51,7 @@ public class MainActivity
         passView.setText(text);
         passView.setSelection(text.length());
     }
+
     @OnTextChanged(R.id.email) void onEmailChanged(CharSequence s) {
         presenter.emailChanged(s.toString());
     }
@@ -60,5 +67,4 @@ public class MainActivity
     @OnClick(R.id.submitButton) void submitViewClicked() {
         presenter.submitViewClicked();
     }
-
 }

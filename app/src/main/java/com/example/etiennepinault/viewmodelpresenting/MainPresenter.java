@@ -1,42 +1,56 @@
 package com.example.etiennepinault.viewmodelpresenting;
 
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.example.etiennepinault.viewmodelpresenting.commons.Presenter;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subjects.BehaviorSubject;
 
 import java.util.concurrent.TimeUnit;
 
 public class MainPresenter
-        extends Presenter<MainViewModel> {
+        extends Presenter<MainViewModel, Parcelable> {
 
     private Subscription submitSubscription;
+
+    @NonNull final private BehaviorSubject<String> email = BehaviorSubject.create();
+    @NonNull final private BehaviorSubject<String> password = BehaviorSubject.create();
 
     public MainPresenter(@NonNull MainViewModel viewModel) {
         super(viewModel);
 
-        Observable.combineLatest(viewModel.emailObs(),
-                                 viewModel.passObs(),
+        Observable.combineLatest(email,
+                                 password,
                                  (email, pass) ->
                                          email.length() > 0 && pass.length() > 0
         ).subscribe(viewModel::setSubmitButtonEnabled);
     }
 
+    @Override protected void restoreState(@Nullable Parcelable state) {
+
+    }
+
+    @Nullable @Override protected Parcelable saveState() {
+        return null;
+    }
+
     void emailChanged(String s) {
-        viewModel.setEmail(s);
+        email.onNext(s);
     }
 
     void passChanged(String s) {
-        viewModel.setPass(s);
+        password.onNext(s);
     }
 
-    public void defaultViewClicked() {
+    void defaultViewClicked() {
         viewModel.setDefaultEmail("etienne@test.cp");
     }
 
-    public void submitViewClicked() {
+    void submitViewClicked() {
         unsubscribe(submitSubscription);
 
         Observable<String> obs = Observable.create(subscriber -> {

@@ -5,76 +5,78 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import rx.subscriptions.CompositeSubscription;
 
 public class BaseActivity<P extends Presenter, VM extends ViewModel>
-        extends AppCompatActivity {
+        extends AppCompatActivity implements BaseView.Parent {
 
     protected final @NonNull VM viewModel = new ViewModel.Factory<VM>().build(this);
     protected final @NonNull P presenter = new Presenter.Factory<P>().build(this, viewModel);
 
-    private CompositeSubscription lifeTimeSubscriptions = new CompositeSubscription();
-    private CompositeSubscription foregroundSubscriptions = new CompositeSubscription();
+    private final BaseView baseView;
 
-    private static final String TAG = "BaseActivity";
+    public BaseActivity() {
+        this.baseView = new BaseView(this);
+    }
 
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        baseView.onCreate(savedInstanceState);
+    }
 
-        Parcelable parcelable = null;
-        if(savedInstanceState != null && savedInstanceState.containsKey(getStateKey())) {
-            Object state = savedInstanceState.get(getStateKey());
-            if(state instanceof Parcelable) {
-                parcelable = (Parcelable) state;
-            }
-        }
+    @Override public void restoreState(Parcelable state) {
         //noinspection unchecked
-        presenter.restoreState(parcelable);
+        presenter.restoreState(state);
+    }
 
-        Log.e(TAG, "onCreate: " + savedInstanceState);
+    @Override public Parcelable getSaveState() {
+        return presenter.saveState();
     }
 
     @Override protected void onStart() {
         super.onStart();
-        subscribeForLifeTime(lifeTimeSubscriptions);
+        baseView.onStart();
     }
 
-    protected void subscribeForLifeTime(CompositeSubscription subscriptions) {
+    public void subscribeForLifeTime(CompositeSubscription subscriptions) {
 
     }
 
     @Override protected void onResume() {
         super.onResume();
-        subscribeForForeground(foregroundSubscriptions);
+        baseView.onResume();
     }
 
-    protected void subscribeForForeground(CompositeSubscription subscriptions) {
+    public void subscribeForForeground(CompositeSubscription subscriptions) {
 
     }
 
     @Override protected void onPause() {
         super.onPause();
-        foregroundSubscriptions.clear();
+        baseView.onPause();
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(getStateKey(), presenter.saveState());
+        baseView.onSaveInstanceState(outState);
     }
 
     @Override protected void onStop() {
         super.onStop();
-        lifeTimeSubscriptions.clear();
+        baseView.onStop();
     }
 
-    @NonNull private String getStateKey() {
+    @NonNull public String getStateKey() {
         return "savedState_" + getClass().getName();
     }
 
     @Override protected void onDestroy() {
         super.onDestroy();
+        baseView.onDestroy();
+    }
+
+    @Override public void destroy() {
         presenter.onDestroy();
     }
 }
