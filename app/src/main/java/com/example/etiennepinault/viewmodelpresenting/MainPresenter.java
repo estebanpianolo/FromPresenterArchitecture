@@ -6,11 +6,9 @@ import android.support.annotation.Nullable;
 
 import com.example.etiennepinault.viewmodelpresenting.commons.Presenter;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
-
-import java.util.concurrent.TimeUnit;
 
 public class MainPresenter
         extends Presenter<MainViewModel, Parcelable> {
@@ -53,16 +51,19 @@ public class MainPresenter
     void submitViewClicked() {
         unsubscribe(submitSubscription);
 
-        Observable<String> obs = Observable.create(subscriber -> {
-            subscriber.onNext("petit coucou");
-            subscriber.onCompleted();
+        submitSubscription = new TimeOutInteractor().setTimeout(1).execute(new Observer<String>() {
+            @Override public void onCompleted() {
+                clearFields();
+            }
+
+            @Override public void onError(Throwable e) {
+
+            }
+
+            @Override public void onNext(String s) {
+
+            }
         });
-        submitSubscription = obs
-                .delay(2, TimeUnit.SECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                    clearFields();
-                });
     }
 
     private void clearFields() {
