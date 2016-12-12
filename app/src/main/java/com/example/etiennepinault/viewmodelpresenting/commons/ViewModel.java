@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 
 public abstract class ViewModel {
 
-    static class Factory<VM> {
+    public static class Factory<VM> {
 
         @SuppressWarnings("unchecked")
         protected Class<VM> getClass(Object view)

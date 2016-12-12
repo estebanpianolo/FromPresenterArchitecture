@@ -1,8 +1,6 @@
-package com.example.etiennepinault.viewmodelpresenting;
+package com.example.etiennepinault.viewmodelpresenting.interactors;
 
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import java.util.concurrent.TimeUnit;
@@ -16,14 +14,13 @@ public class TimeOutInteractor {
         return this;
     }
 
-    public Subscription execute (Observer<String> observer) {
+    public Observable<String> execute () {
         Observable<String> obs = Observable.create(subscriber -> {
             subscriber.onNext("petit coucou");
             subscriber.onCompleted();
         });
         return obs
                 .delay(timeout, TimeUnit.SECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }

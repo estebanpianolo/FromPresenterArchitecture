@@ -8,29 +8,10 @@ import rx.subjects.PublishSubject;
 public class MainViewModel
         extends ViewModel {
 
-    private BehaviorSubject<String> email = BehaviorSubject.create("");
-    private BehaviorSubject<String> pass = BehaviorSubject.create("");
-
     private PublishSubject<String> defaultEmail = PublishSubject.create();
     private PublishSubject<String> defaultPass = PublishSubject.create();
 
     private BehaviorSubject<Boolean> submitButtonEnabled = BehaviorSubject.create(false);
-
-    void setEmail(String email) {
-        this.email.onNext(email);
-    }
-
-    Observable<String> emailObs() {
-        return email;
-    }
-
-    void setPass(String pass) {
-        this.pass.onNext(pass);
-    }
-
-    Observable<String> passObs() {
-        return pass;
-    }
 
     void setDefaultEmail(String defaultEmail) {
         this.defaultEmail.onNext(defaultEmail);

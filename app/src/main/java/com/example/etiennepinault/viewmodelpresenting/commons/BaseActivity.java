@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import rx.subscriptions.CompositeSubscription;
 
-public class BaseActivity<P extends Presenter, VM extends ViewModel>
+public abstract class BaseActivity<P extends Presenter, VM extends ViewModel>
         extends AppCompatActivity implements BaseView.Parent {
 
     protected final @NonNull VM viewModel = new ViewModel.Factory<VM>().build(this);

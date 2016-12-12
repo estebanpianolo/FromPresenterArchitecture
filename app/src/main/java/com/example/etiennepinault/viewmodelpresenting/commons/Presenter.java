@@ -43,7 +43,7 @@ public abstract class Presenter<VM extends ViewModel, S extends Parcelable> {
 
     abstract protected void destroy();
 
-    static class Factory<P extends Presenter> {
+    public static class Factory<P extends Presenter> {
 
         @SuppressWarnings("unchecked") Class<P> getPresenterClass(Object view)
                 throws ClassCastException {

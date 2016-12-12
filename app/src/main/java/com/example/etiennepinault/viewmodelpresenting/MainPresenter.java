@@ -5,22 +5,36 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.example.etiennepinault.viewmodelpresenting.commons.Presenter;
+import com.example.etiennepinault.viewmodelpresenting.interactors.TimeOutInteractor;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.subjects.BehaviorSubject;
+
+import javax.inject.Inject;
 
 public class MainPresenter
         extends Presenter<MainViewModel, Parcelable> {
 
-    private Subscription submitSubscription;
-
     @NonNull final private BehaviorSubject<String> email = BehaviorSubject.create();
     @NonNull final private BehaviorSubject<String> password = BehaviorSubject.create();
+    @Inject TimeOutInteractor timeOutInteractor;
+    private Subscription submitSubscription;
+
+    public MainPresenter(@NonNull MainViewModel viewModel,
+                         @NonNull TimeOutInteractor timeOutInteractor) {
+        super(viewModel);
+        this.timeOutInteractor = timeOutInteractor;
+        init();
+    }
 
     public MainPresenter(@NonNull MainViewModel viewModel) {
         super(viewModel);
 
+        DaggerPresenterComponent.create().inject(this);
+        init();
+    }
+
+    private void init() {
         Observable.combineLatest(email,
                                  password,
                                  (email, pass) ->
@@ -46,24 +60,16 @@ public class MainPresenter
 
     void defaultViewClicked() {
         viewModel.setDefaultEmail("etienne@test.cp");
+        viewModel.setDefaultPass("coucou");
     }
 
     void submitViewClicked() {
         unsubscribe(submitSubscription);
 
-        submitSubscription = new TimeOutInteractor().setTimeout(1).execute(new Observer<String>() {
-            @Override public void onCompleted() {
-                clearFields();
-            }
-
-            @Override public void onError(Throwable e) {
-
-            }
-
-            @Override public void onNext(String s) {
-
-            }
-        });
+        submitSubscription =
+                timeOutInteractor.setTimeout(1)
+                                 .execute()
+                                 .subscribe(o -> {}, Throwable::printStackTrace, this::clearFields);
     }
 
     private void clearFields() {
