@@ -10,7 +10,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import com.chauffeurprive.core.mvp.BaseActivity;
-import com.chauffeurprive.core.mvp.CustomApplication;
+import com.chauffeurprive.example.CustomApplication;
 import com.chauffeurprive.example.R;
 import rx.subscriptions.CompositeSubscription;
 

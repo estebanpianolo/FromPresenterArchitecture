@@ -7,7 +7,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:name="com.chauffeurprive.core.mvp.CustomApplication"
+        android:name=".CustomApplication"
         android:theme="@style/AppTheme">
         <activity android:name="com.chauffeurprive.example.main.MainActivity">
             <intent-filter>

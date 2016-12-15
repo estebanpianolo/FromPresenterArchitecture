@@ -1,4 +1,4 @@
-package com.chauffeurprive.core.mvp;
+package com.chauffeurprive.example;
 
 import android.app.Application;
 

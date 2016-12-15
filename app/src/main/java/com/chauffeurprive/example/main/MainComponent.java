@@ -1,6 +1,6 @@
 package com.chauffeurprive.example.main;
 
-import com.chauffeurprive.core.mvp.AppComponent;
+import com.chauffeurprive.example.AppComponent;
 import com.chauffeurprive.core.mvp.scopes.ActivityScope;
 import dagger.Component;
 
